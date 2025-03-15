@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock'sTicking Timer</title>
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Background with Uploaded Image */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('background.png') no-repeat center center;
+            background-size: cover;
+            backdrop-filter: brightness(1.1);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Timer Container */
+        .timer-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 360px;
+            border: 4px solid #ff0080;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        /* Glowing Border Animation */
+        @keyframes glow {
+            from {
+                box-shadow: 0px 5px 20px rgba(255, 0, 128, 0.8);
+            }
+            to {
+                box-shadow: 0px 5px 25px rgba(255, 105, 180, 1);
+            }
+        }
+
+        /* Title */
+        h1 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            color: #ff0066;
+            text-shadow: 2px 2px 8px rgba(255, 0, 128, 0.7);
+        }
+
+        /* Input Fields */
+        input {
+            width: 70px;
+            padding: 10px;
+            font-size: 18px;
+            margin: 5px;
+            text-align: center;
+            border: 3px solid #ff1493;
+            border-radius: 6px;
+            background: #ffebf1;
+            font-weight: bold;
+            color: #c2185b;
+        }
+
+        /* Timer Display */
+        #display {
+            font-size: 44px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ff1744;
+            text-shadow: 3px 3px 10px rgba(255, 0, 64, 0.8);
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #start {
+            background: #ff5722;
+            box-shadow: 0px 4px 12px rgba(255, 87, 34, 0.9);
+        }
+
+        #pause {
+            background: #ff9800;
+            box-shadow: 0px 4px 12px rgba(255, 152, 0, 0.9);
+        }
+
+        #reset {
+            background: #d500f9;
+            box-shadow: 0px 4px 12px rgba(213, 0, 249, 0.9);
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Attribution Text */
+        .attribution {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #222;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        /* Firework Effect */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            opacity: 1;
+            animation: particle-explosion 2s ease-out forwards;
+        }
+
+        @keyframes particle-explosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-container">
+        <h1>🌟 Clock'sTicking Timer 🌟</h1>
+        <input type="number" id="minutes" placeholder="Min" min="0">
+        <input type="number" id="seconds" placeholder="Sec" min="0" max="59">
+        <div id="display">00:00</div>
+        <div class="buttons">
+            <button id="start">Start</button>
+            <button id="pause">Pause</button>
+            <button id="reset">Reset</button>
+        </div>
+        <p class="attribution">
+            This timer app was made by Nadya Karunanayaka as a project for the ENTI 674 class at the Haskayne School of Business, University of Calgary.
+        </p>
+    </div>
+
+    <script>
+        let timer;
+        let totalSeconds;
+        let isRunning = false;
+
+        const startButton = document.getElementById('start');
+        const pauseButton = document.getElementById('pause');
+        const resetButton = document.getElementById('reset');
+        const display = document.getElementById('display');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+
+        function updateDisplay(min, sec) {
+            display.innerText = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+
+            let min = parseInt(minutesInput.value) || 0;
+            let sec = parseInt(secondsInput.value) || 0;
+            totalSeconds = min * 60 + sec;
+
+            if (totalSeconds <= 0) return;
+
+            isRunning = true;
+            createFireworks(startButton); // Trigger firework effect
+            timer = setInterval(() => {
+                if (totalSeconds <= 0) {
+                    clearInterval(timer);
+                    isRunning = false;
+                    return;
+                }
+
+                totalSeconds--;
+                let minutesLeft = Math.floor(totalSeconds / 60);
+                let secondsLeft = totalSeconds % 60;
+                updateDisplay(minutesLeft, secondsLeft);
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timer);
+            isRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            updateDisplay(0, 0);
+            minutesInput.value = '';
+            secondsInput.value = '';
+        }
+
+        startButton.addEventListener('click', startTimer);
+        pauseButton.addEventListener('click', pauseTimer);
+        resetButton.addEventListener('click', resetTimer);
+
+        function createFireworks(button) {
+            for (let i = 0; i < 20; i++) { // Adjust particle count here
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.backgroundColor = ['red', 'yellow', 'blue', 'green', 'pink'][Math.floor(Math.random() * 5)];
+                particle.style.setProperty('--x', `${Math.random() * 200 - 100}px`);
+                particle.style.setProperty('--y', `${Math.random() * 200 - 100}px`);
+                button.appendChild(particle);
+                setTimeout(() => particle.remove(), 2000);
+            }
+        }
+    </script>
+
+</body>
+</html>
